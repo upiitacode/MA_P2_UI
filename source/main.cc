@@ -17,10 +17,11 @@ void osInitiAll(void);
 
 void led_init(void);
 void button_init(void);
+void waitButtonPress(void);
 
 SerialUSART2* serial;
 #define SIGNAL_BUTTON 0x1
-osThreadId main_thread_id;
+osThreadId button_thread_id;
 
 int main(){
 	//Hardware initialization
@@ -28,12 +29,10 @@ int main(){
 	button_init();
 	//Operating System initialization
 	osInitiAll();
-	main_thread_id = osThreadGetId();
 	serial->printf("\nSystem ready\n");
 	//User application
 	while(1){
-		osSignalClear(main_thread_id, SIGNAL_BUTTON);
-		osSignalWait(SIGNAL_BUTTON,osWaitForever);
+		waitButtonPress();
 		serial->printf("Valve on\n");
 		osDelay(1000);
 		serial->printf("Valve off\n");
@@ -88,9 +87,14 @@ void button_init(void){
 	RCC->APB2ENR|= RCC_APB2ENR_SYSCFGEN;//Enable sysconfig registers
 	SYSCFG->EXTICR[3] |=SYSCFG_EXTICR4_EXTI13_PC;
 	EXTI->IMR |= EXTI_IMR_MR13;
-	EXTI->RTSR |= EXTI_RTSR_TR13;
 	EXTI->FTSR |= EXTI_FTSR_TR13;
 	NVIC_EnableIRQ(EXTI15_10_IRQn);
+}
+
+void waitButtonPress(void){
+	button_thread_id = osThreadGetId();
+	osSignalClear(button_thread_id, SIGNAL_BUTTON);
+	osSignalWait(SIGNAL_BUTTON,osWaitForever);
 }
 
 /**
@@ -100,6 +104,6 @@ extern "C"
 {
 	void EXTI15_10_IRQHandler(void){
 		EXTI->PR = EXTI_PR_PR13;
-		osSignalSet(main_thread_id, SIGNAL_BUTTON);
+		osSignalSet(button_thread_id, SIGNAL_BUTTON);
 	}
 }
