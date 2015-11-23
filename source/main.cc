@@ -12,17 +12,25 @@ osThreadDef (tarea2,osPriorityNormal,1,0);// macro para definir tareas (aputando
 void tarea1Init(void);//funcion que iniciliza la tarea1
 void tarea2Init(void);//funcion que iniciliza la tarea1
 
+void osInitiAll(void);
+
 int main(){
+	//Hardware initialization
 	SerialUSART2 serial(9600);
-	serial.printf("\nEl dinero es dinero ara ara\n");
+	//Operating System initialization
+	osInitiAll();
 	//User application
+	while(1){
+		serial.printf("Hello World!\n");
+		osDelay(1000);
+	}
+}
+
+void osInitiAll(void){
 	osKernelInitialize();
 	tarea1Init();
 	tarea2Init();
 	osKernelStart();
-	while(1){
-		osDelay(1000);
-	}
 }
 
 void tarea1Init(void){
@@ -41,6 +49,6 @@ void tarea1(void const * arguments){
 
 void tarea2(void const * arguments){
 	while(1){
-		osDelay(10);
+		osDelay(1000);
 	}
 }
