@@ -1,5 +1,6 @@
 #include "cmsis_os.h"                   // ARM::CMSIS:RTOS:Keil RTX
 #include "SerialStream_stm32f3.h"
+#include "stm32f30x.h"                  // Device header
 
 void tarea1(void const * arguments); //tarea 1
 osThreadId  tarea1ID;	//identificador del hilo tarea 1
@@ -14,15 +15,28 @@ void tarea2Init(void);//funcion que iniciliza la tarea1
 
 void osInitiAll(void);
 
+void led_init(void);
+void button_init(void);
+
+SerialUSART2* serial;
+#define SIGNAL_BUTTON 0x1
+osThreadId main_thread_id;
+
 int main(){
 	//Hardware initialization
-	SerialUSART2 serial(9600);
+	serial = new SerialUSART2(9600);
+	button_init();
 	//Operating System initialization
 	osInitiAll();
+	main_thread_id = osThreadGetId();
+	serial->printf("\nSystem ready\n");
 	//User application
 	while(1){
-		serial.printf("Hello World!\n");
+		osSignalClear(main_thread_id, SIGNAL_BUTTON);
+		osSignalWait(SIGNAL_BUTTON,osWaitForever);
+		serial->printf("Valve on\n");
 		osDelay(1000);
+		serial->printf("Valve off\n");
 	}
 }
 
@@ -50,5 +64,42 @@ void tarea1(void const * arguments){
 void tarea2(void const * arguments){
 	while(1){
 		osDelay(1000);
+	}
+}
+
+void led_init(void){
+	//Turn on the GPIOB peripherial
+	RCC->AHBENR |= RCC_AHBENR_GPIOBEN;
+	//Configure PB13  as push pull ouput an set the output to high
+	GPIOB->MODER &=~(GPIO_MODER_MODER13);
+	GPIOB->MODER |=GPIO_MODER_MODER13_0;//output
+	GPIOB->ODR |= GPIO_ODR_13;
+}
+
+void button_init(void){
+	//needed for interrupt source remaping
+	RCC->AHBENR |= RCC_AHBENR_GPIOCEN;
+
+	//Configure PA13 as input with pull-up
+	GPIOC->MODER &=~(GPIO_MODER_MODER13);
+	GPIOC->PUPDR |= GPIO_PUPDR_PUPDR13_0;
+
+	//configure interrupt
+	RCC->APB2ENR|= RCC_APB2ENR_SYSCFGEN;//Enable sysconfig registers
+	SYSCFG->EXTICR[3] |=SYSCFG_EXTICR4_EXTI13_PC;
+	EXTI->IMR |= EXTI_IMR_MR13;
+	EXTI->RTSR |= EXTI_RTSR_TR13;
+	EXTI->FTSR |= EXTI_FTSR_TR13;
+	NVIC_EnableIRQ(EXTI15_10_IRQn);
+}
+
+/**
+ * Exteral interrupt handler
+ */
+extern "C"
+{
+	void EXTI15_10_IRQHandler(void){
+		EXTI->PR = EXTI_PR_PR13;
+		osSignalSet(main_thread_id, SIGNAL_BUTTON);
 	}
 }
