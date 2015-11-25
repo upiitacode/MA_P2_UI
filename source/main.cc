@@ -12,6 +12,7 @@ osThreadDef (tarea2,osPriorityNormal,1,0);// macro para definir tareas (aputando
 
 void tarea1Init(void);//funcion que iniciliza la tarea1
 void tarea2Init(void);//funcion que iniciliza la tarea1
+void button_mutex_init(void);// initializes button mutex
 
 void osInitiAll(void);
 
@@ -20,8 +21,11 @@ void button_init(void);
 void waitButtonPress(void);
 
 SerialUSART2* serial;
+
 #define SIGNAL_BUTTON 0x1
 osThreadId button_thread_id;
+osMutexDef (button_mutex);
+osMutexId button_mutex_id;
 
 int main(){
 	//Hardware initialization
@@ -43,7 +47,12 @@ void osInitiAll(void){
 	osKernelInitialize();
 	tarea1Init();
 	tarea2Init();
+	button_mutex_init();
 	osKernelStart();
+}
+
+void button_mutex_init(void){
+	button_mutex_id = osMutexCreate(osMutex(button_mutex));
 }
 
 void tarea1Init(void){
@@ -93,8 +102,10 @@ void button_init(void){
 
 void waitButtonPress(void){
 	button_thread_id = osThreadGetId();
+	osMutexWait(button_mutex_id, osWaitForever);
 	osSignalClear(button_thread_id, SIGNAL_BUTTON);
 	osSignalWait(SIGNAL_BUTTON,osWaitForever);
+	osMutexRelease(button_mutex_id);
 }
 
 /**
