@@ -9,9 +9,9 @@ class SerialStream{
 	public:
 		virtual char getChar(void) = 0;
 		virtual void sendChar(char) = 0;
-		void puts(const char * pString);
-		int gets(char * pBuffer, int bufferSize);
-		void printf(const char * format, ...) __attribute__ ((format (printf, 2, 3)));
+		virtual void puts(const char * pString);
+		virtual int gets(char * pBuffer, int bufferSize);
+		virtual void printf(const char * format, ...) __attribute__ ((format (printf, 2, 3)));
 };
 
 #endif// _SERIALSTREAM_H
