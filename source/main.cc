@@ -1,6 +1,8 @@
 #include "cmsis_os.h"                   // ARM::CMSIS:RTOS:Keil RTX
-#include "SerialStream_stm32f3.h"
+#include "SyncSerial_stm32f3.h"
 #include "stm32f30x.h"                  // Device header
+#include "MainApp.h"
+#include "safe_stdlib.h"
 
 void tarea1(void const * arguments); //tarea 1
 osThreadId  tarea1ID;	//identificador del hilo tarea 1
@@ -20,31 +22,27 @@ void led_init(void);
 void button_init(void);
 void waitButtonPress(void);
 
-SerialUSART2* serial;
+SerialStream* serial;
 
 #define SIGNAL_BUTTON 0x1
 osThreadId button_thread_id;
 osMutexDef (button_mutex);
 osMutexId button_mutex_id;
 
+
 int main(){
+	osKernelInitialize();
 	//Hardware initialization
-	serial = new SerialUSART2(9600);
-	button_init();
+	serial = new SyncSerialUSART2(9600);
 	//Operating System initialization
 	osInitiAll();
 	serial->printf("\nSystem ready\n");
 	//User application
-	while(1){
-		waitButtonPress();
-		serial->printf("Valve on\n");
-		osDelay(1000);
-		serial->printf("Valve off\n");
-	}
+	MainApp::main(serial);
 }
 
 void osInitiAll(void){
-	osKernelInitialize();
+	safe_init();
 	tarea1Init();
 	tarea2Init();
 	button_mutex_init();
@@ -65,7 +63,10 @@ void tarea2Init(void){
 
 void tarea1(void const * arguments){
 	while(1){
-		osDelay(1000);
+		serial->printf("Thread: tarea1, Valve on\n");
+		osDelay(10);
+		serial->printf("Thread: tarea1, Valve off\n");
+		osDelay(10);
 	}
 }
 
