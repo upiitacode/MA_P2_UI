@@ -3,7 +3,7 @@
  * Auto generated Run-Time-Environment Component Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'Cpp_03_RTOS' 
+ * Project: 'Cpp_08_SyncHardware' 
  * Target:  'Target 1' 
  */
 
