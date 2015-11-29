@@ -33,6 +33,8 @@ void USART2_init(int baudrate){
 	USART_InitStructure.USART_Mode=USART_Mode_Tx|USART_Mode_Rx;
 	USART_Init(USART2,&USART_InitStructure);
 	USART_Cmd(USART2,ENABLE);
+	
+	NVIC_EnableIRQ(USART2_IRQn);
 }
 
 
@@ -40,6 +42,12 @@ void USART2_sendChar(char ch){
 	while(!USART_GetFlagStatus(USART2,USART_FLAG_TXE));
 	
 	USART_SendData(USART2,ch);
+}
+
+void USART2_sendCharWithInterrupt(char ch){
+	while(!USART_GetFlagStatus(USART2,USART_FLAG_TXE));
+	USART_SendData(USART2,ch);
+	USART_ITConfig(USART2, USART_IT_TXE, ENABLE);
 }
 
 char USART2_getChar(void){
@@ -98,3 +106,18 @@ char USART1_getChar(void){
 	return USART_ReceiveData(USART1);
 }
 
+void __attribute__((weak)) USART2_tx_callback(void){}
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+void USART2_IRQHandler(void){
+	if(USART_GetITStatus(USART2, USART_IT_TXE)){
+		USART_ITConfig(USART2, USART_IT_TXE, DISABLE);
+		USART_ClearITPendingBit(USART2,USART_IT_TXE);
+		USART2_tx_callback();
+	}
+}
+#ifdef __cplusplus
+}
+#endif

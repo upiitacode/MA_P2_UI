@@ -17,6 +17,10 @@ void USART2_sendChar(char ch);
 
 char USART2_getChar(void);
 
+void USART2_sendCharWithInterrupt(char ch);
+
+void USART2_tx_callback(void);
+
 #ifdef __cplusplus
 }
 #endif
