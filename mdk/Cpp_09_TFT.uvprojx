@@ -448,6 +448,11 @@
               <FileType>1</FileType>
               <FilePath>..\retarget\source\retarget_stm32f3.c</FilePath>
             </File>
+            <File>
+              <FileName>board.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\board.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

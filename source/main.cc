@@ -2,6 +2,7 @@
 #include "SyncSerial_stm32f3.h"
 #include "MainApp.h"
 #include "safe_stdlib.h"
+#include "board.h"
 
 void tarea1(void const * arguments); //tarea 1
 osThreadId  tarea1ID;	//identificador del hilo tarea 1
@@ -18,6 +19,7 @@ int main(){
 	osKernelInitialize();
 	//Hardware initialization
 	serial = new SyncSerialUSART2(9600);
+	led_init();
 	//Operating System initialization
 	osInitiAll();
 	serial->printf("\nSystem ready\n");
@@ -37,6 +39,9 @@ void tarea1Init(void){
 
 void tarea1(void const * arguments){
 	while(1){
-		osDelay(1000);
+		led_setState(LED_STATE_ON);
+		osDelay(500);
+		led_setState(LED_STATE_OFF);
+		osDelay(500);
 	}
 }
