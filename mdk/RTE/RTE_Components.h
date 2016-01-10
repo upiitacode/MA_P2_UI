@@ -3,7 +3,7 @@
  * Auto generated Run-Time-Environment Component Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'Cpp_09_TFT' 
+ * Project: 'Cpp_10_TFT' 
  * Target:  'Target 1' 
  */
 
