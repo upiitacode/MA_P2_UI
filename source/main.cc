@@ -3,6 +3,7 @@
 #include "MainApp.h"
 #include "safe_stdlib.h"
 #include "board.h"
+#include "tft_driver.h"
 
 void tarea1(void const * arguments); //tarea 1
 osThreadId  tarea1ID;	//identificador del hilo tarea 1
@@ -20,6 +21,7 @@ int main(){
 	//Hardware initialization
 	serial = new SyncSerialUSART2(9600);
 	led_init();
+	TFT_Init();
 	//Operating System initialization
 	osInitiAll();
 	serial->printf("\nSystem ready\n");
@@ -38,10 +40,12 @@ void tarea1Init(void){
 }
 
 void tarea1(void const * arguments){
+	TFT_Fill(Black);
 	while(1){
-		led_setState(LED_STATE_ON);
-		osDelay(500);
-		led_setState(LED_STATE_OFF);
-		osDelay(500);
+		TFT_Fill(Black);
+		osDelay(1000);
+		TFT_Text("Hello",100,0,8,Green,Black);
+		TFT_Text("World",100,310,8,Green,Black);
+		osDelay(5000);
 	}
 }

@@ -453,6 +453,16 @@
               <FileType>1</FileType>
               <FilePath>..\source\board.c</FilePath>
             </File>
+            <File>
+              <FileName>tft_driver.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\tft_driver.c</FilePath>
+            </File>
+            <File>
+              <FileName>tft_hal_stm32f3.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\source\tft_hal_stm32f3.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
