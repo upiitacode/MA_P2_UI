@@ -2,10 +2,10 @@
 #include "cmsis_os.h"
 
 void MainApp::main(SerialStream* serial){
+	int count = 0;
 	while(1){
-		serial->printf("Thread: main, Valve on\n");
-		osDelay(10);
-		serial->printf("Thread: main, Valve off\n");
-		osDelay(10);
+		serial->printf("Count = %d\n", count);
+		osDelay(1000);
+		count++;
 	}
 }
