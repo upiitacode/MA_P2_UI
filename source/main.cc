@@ -43,8 +43,7 @@ void tarea1(void const * arguments){
 	TFT_Fill(Black);
 	while(1){
 		TFT_Fill(Black);
-		TFT_Text("Hello",100,0,8,Green,Black);
-		TFT_Text("World",100,310,8,Green,Black);
+		TFT_Text("Hello, World!",10,10,8,Green,Black);
 		osDelay(1000);
 	}
 }
