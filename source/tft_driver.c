@@ -303,7 +303,7 @@ void TFT_Init()
         Write_Command_Data(0x003B,0x0302);
         Write_Command_Data(0x0023,0x0000);
         Write_Command_Data(0x0024,0x0000);
-        Write_Command_Data(0x0025,0x8000);
+        Write_Command_Data(0x0025,0xE000);
         Write_Command_Data(0x004f,0x0000);
         Write_Command_Data(0x004e,0x0000);
         Write_Command(0x0022);
