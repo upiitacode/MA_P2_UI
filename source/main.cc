@@ -63,14 +63,41 @@ void ScopeInit(){
 	TFT_Plot(SCOPE_POS_X,150,SCOPE_POS_Y,50,scope_buffer,SCOPE_BUFFER_SIZE);
 }
 
+void Scope_WriteLine(int index, unsigned short color){
+	unsigned short x1,x2,y1,y2;
+	x1 = SCOPE_POS_X+index+1;
+	x2 = SCOPE_POS_X+index+2;
+	y1 = SCOPE_POS_Y-scope_buffer[index]-1;
+	y2 = SCOPE_POS_Y-scope_buffer[index+1]-1;
+	if(y1 < y2){
+		TFT_Line(x1,y1,x2,y2,color);
+	}else{
+		TFT_Line(x2,y2,x1,y1,color);
+	}
+}
+
+
 void ScopeUpdate(int Datos){
-	TFT_Dot(SCOPE_POS_X+scope_buffer_index+1,SCOPE_POS_Y-scope_buffer[scope_buffer_index]-1,Black);
+	if(scope_buffer_index  > 0){
+		Scope_WriteLine(scope_buffer_index-1, Black);
+	}
+	if(scope_buffer_index < (SCOPE_BUFFER_SIZE -1)){
+		Scope_WriteLine(scope_buffer_index, Black);
+	}
+	
 	scope_buffer[scope_buffer_index] = Datos;
-	TFT_Dot(SCOPE_POS_X+scope_buffer_index+1,SCOPE_POS_Y-scope_buffer[scope_buffer_index]-1,Yellow);
+	
+	if(scope_buffer_index  > 1){
+		Scope_WriteLine(scope_buffer_index-2, Yellow);
+	}
+	if(scope_buffer_index  > 0){
+		Scope_WriteLine(scope_buffer_index-1, Yellow);
+	}
+	if(scope_buffer_index < (SCOPE_BUFFER_SIZE -1)){
+		Scope_WriteLine(scope_buffer_index, Yellow);
+	}
 	scope_buffer_index++;	
 	scope_buffer_index %= SCOPE_BUFFER_SIZE;
-	
-	
 }
 
 void tarea1(void const * arguments){
@@ -79,6 +106,6 @@ void tarea1(void const * arguments){
 	ScopeInit();
 	while(1){
 		ScopeUpdate(get_sine());
-		osDelay(10);
+		osDelay(5);
 	}
 }
