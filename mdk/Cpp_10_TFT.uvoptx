@@ -311,8 +311,8 @@
       <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\source\tft_driver.c</PathWithFileName>
-      <FilenameWithoutPath>tft_driver.c</FilenameWithoutPath>
+      <PathWithFileName>..\source\tft_hal_stm32f3.c</PathWithFileName>
+      <FilenameWithoutPath>tft_hal_stm32f3.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -324,8 +324,8 @@
       <Focus>0</Focus>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\source\tft_hal_stm32f3.c</PathWithFileName>
-      <FilenameWithoutPath>tft_hal_stm32f3.c</FilenameWithoutPath>
+      <PathWithFileName>..\source\tft_driver.c</PathWithFileName>
+      <FilenameWithoutPath>tft_driver.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
