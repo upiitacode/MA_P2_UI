@@ -246,11 +246,11 @@ void Write_Command_Data(unsigned short Wcommand,unsigned short Wdata)
 
 void TFT_Set_Address(unsigned short PX1,unsigned short PY1,unsigned short PX2,unsigned short PY2)
 {
-  Write_Command_Data(68,(PX2 << 8) + PX1 );  //Column address start2
-  Write_Command_Data(69,PY1);      //Column address start1
-  Write_Command_Data(70,PY2);  //Column address end2
-  Write_Command_Data(78,PX1);      //Column address end1
-  Write_Command_Data(79,PY1);  //Row address start2
+  Write_Command_Data(68,(PY2 << 8) + PY1 );//Set Horizontal window END/START
+  Write_Command_Data(69,319-PX2);//Set Vertical window START
+  Write_Command_Data(70,319-PX1);//Set Vertical window END
+  Write_Command_Data(78,PY1);//Set Horizontal Cursor
+  Write_Command_Data(79,319-PX1);//Set Vertical Cursor
   Write_Command(34);
 }
 
@@ -274,7 +274,7 @@ void TFT_Init()
         Write_Command_Data(0x0001,0x2B3F);
         Write_Command_Data(0x0002,0x0600);
         Write_Command_Data(0x0010,0x0000);
-        Write_Command_Data(0x0011,0x6070);
+        Write_Command_Data(0x0011,0x6058);
         Write_Command_Data(0x0005,0x0000);
         Write_Command_Data(0x0006,0x0000);
         Write_Command_Data(0x0016,0xEF1C);
@@ -325,7 +325,7 @@ void TFT_Fill(unsigned short color)
 {
   unsigned short i,j;
   TFT_HAL_CS(0);
-  TFT_Set_Address(0,0,239,319);
+  TFT_Set_Address(0,0,319,239);
   Write_Data(color);
   for(i = 0; i <= 319; i++)
   {
