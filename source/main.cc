@@ -6,6 +6,8 @@
 #include "tft_driver.h"
 #include "os_serial_stdio.h"
 #include "os_usart_stm32f0.h"
+#include "cadc_stm32f3.h"
+#include "ctimers_stm32f3.h"
 #include <math.h>
 
 void tarea1(void const * arguments); //tarea 1
@@ -14,12 +16,29 @@ osThreadDef (tarea1,osPriorityNormal,1,0);// macro para definir tareas (aputando
 
 void tarea1Init(void);//funcion que iniciliza la tarea1
 
+void tarea2(void const * arguments); //tarea 1
+osThreadId  tarea2ID;	//identificador del hilo tarea 1
+osThreadDef (tarea2,osPriorityNormal,1,0);// macro para definir tareas (aputandor de la funcion, prioridad,?,?)
+
+void tarea1Init(void);//funcion que iniciliza la tarea1
+void tarea2Init(void);//funcion que iniciliza la tarea1
+
 void osInitiAll(void);
 
 SerialStream* serial;
 
 char inputBuffer[80];
 volatile int motor_rpm;
+
+void adc_timer6_init(void){
+	timer6_init(10000, PERIOD_IN_MICROSECONDS);
+	adc_injected(ADC_TRIGGER_TIMER6);
+}
+
+void adc_timer6_start(void){
+	timer6_start();
+}
+
 
 int main(){
 	//Kernel initialization
@@ -29,31 +48,37 @@ int main(){
 	os_usart1_init(9600);
 	serial = new SyncSerialUSART2(9600);
 	led_init();
+	adc_timer6_init();
 	TFT_Init();
 	//Operating System initialization
 	osInitiAll();
 	//Start Thread switching
 	osKernelStart();
 	//User application
+	adc_timer6_start();
 	serial->printf("\nSystem ready\n");
-	int received_integer = 0;
+	int adc_reading;
+	int duty_cycle = 0;
 	while(1){
-		os_usart1_gets(inputBuffer);
-		if(inputBuffer[0] == 'R'){
-			if(sscanf((inputBuffer+1),"%d",&received_integer)){
-				motor_rpm = received_integer;
-				serial->printf(">>%d\n",motor_rpm);
-			}
-		}
+		adc_reading = adc_getInjectedChannelValue(ADC_INJECTED_CH1);
+		duty_cycle = (int)(((float)adc_reading)*(100.0/4095.0));
+		serial->printf("D%d\n",duty_cycle);
+		osDelay(200);
 	}
 }
 
 void osInitiAll(void){
 	tarea1Init();
+	tarea2Init();
 }
 
 void tarea1Init(void){
 	tarea1ID= osThreadCreate(osThread(tarea1),NULL);
+}
+
+
+void tarea2Init(void){
+	tarea2ID= osThreadCreate(osThread(tarea2),NULL);
 }
 
 void TFT_Plot(unsigned short x, unsigned short xlen, unsigned short y, unsigned short ylen, const int* pData, int length){
@@ -123,5 +148,18 @@ void tarea1(void const * arguments){
 	while(1){
 		ScopeUpdate(get_sine());
 		osDelay(5);
+	}
+}
+
+void tarea2(void const * arguments){
+	int received_integer = 0;
+	while(1){
+		os_usart1_gets(inputBuffer);
+		if(inputBuffer[0] == 'R'){
+			if(sscanf((inputBuffer+1),"%d",&received_integer)){
+				motor_rpm = received_integer;
+				serial->printf("R%d\n",motor_rpm);
+			}
+		}
 	}
 }
