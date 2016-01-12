@@ -28,7 +28,7 @@ void osInitiAll(void);
 SerialStream* serial;
 
 char inputBuffer[80];
-volatile int motor_rpm;
+
 
 void adc_timer6_init(void){
 	timer6_init(10000, PERIOD_IN_MICROSECONDS);
@@ -141,12 +141,14 @@ void ScopeUpdate(int Datos){
 	scope_buffer_index %= SCOPE_BUFFER_SIZE;
 }
 
+volatile int motor_rpm;
+
 void tarea1(void const * arguments){
 	TFT_Fill(Blue);	
 	TFT_Text("Hello, World!",10,10,8,Yellow,Blue);
 	ScopeInit();
 	while(1){
-		ScopeUpdate(get_sine());
+		ScopeUpdate(motor_rpm/100);
 		osDelay(5);
 	}
 }
