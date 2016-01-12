@@ -4,12 +4,13 @@
 #include "safe_stdlib.h"
 #include "board.h"
 #include "tft_driver.h"
+#include "os_serial_stdio.h"
+#include "os_usart_stm32f0.h"
 #include <math.h>
 
 void tarea1(void const * arguments); //tarea 1
 osThreadId  tarea1ID;	//identificador del hilo tarea 1
 osThreadDef (tarea1,osPriorityNormal,1,0);// macro para definir tareas (aputandor de la funcion, prioridad,?,?)
-
 
 void tarea1Init(void);//funcion que iniciliza la tarea1
 
@@ -17,23 +18,38 @@ void osInitiAll(void);
 
 SerialStream* serial;
 
+char inputBuffer[80];
+volatile int motor_rpm;
+
 int main(){
+	//Kernel initialization
 	osKernelInitialize();
 	//Hardware initialization
+	os_serial_init();
+	os_usart1_init(9600);
 	serial = new SyncSerialUSART2(9600);
 	led_init();
 	TFT_Init();
 	//Operating System initialization
 	osInitiAll();
-	serial->printf("\nSystem ready\n");
+	//Start Thread switching
+	osKernelStart();
 	//User application
-	MainApp::main(serial);
+	serial->printf("\nSystem ready\n");
+	int received_integer = 0;
+	while(1){
+		os_usart1_gets(inputBuffer);
+		if(inputBuffer[0] == 'R'){
+			if(sscanf((inputBuffer+1),"%d",&received_integer)){
+				motor_rpm = received_integer;
+				serial->printf(">>%d\n",motor_rpm);
+			}
+		}
+	}
 }
 
 void osInitiAll(void){
-	safe_init();
 	tarea1Init();
-	osKernelStart();
 }
 
 void tarea1Init(void){
