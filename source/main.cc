@@ -44,6 +44,7 @@ void adc_timer6_start(void){
 	timer6_start();
 }
 
+volatile int duty_cycle = 0;
 
 int main(){
 	//Kernel initialization
@@ -63,7 +64,6 @@ int main(){
 	adc_timer6_start();
 	serial->printf("\nSystem ready\n");
 	int adc_reading;
-	int duty_cycle = 0;
 	while(1){
 		adc_reading = adc_getInjectedChannelValue(ADC_INJECTED_CH1);
 		duty_cycle = (int)(((float)adc_reading)*(100.0/4095.0));
@@ -153,13 +153,38 @@ void ScopeUpdate(int Datos){
 
 volatile int motor_rpm;
 
+#define TEMP_BUFFER_SIZE 20
+void encoder_update(int rpm){
+	static int last_rpm = 0;
+	char tempBuffer[TEMP_BUFFER_SIZE];
+	snprintf(tempBuffer,TEMP_BUFFER_SIZE,"%4d RPM",last_rpm);
+	TFT_Text(tempBuffer,170,85,8,Blue,Blue);
+	snprintf(tempBuffer,TEMP_BUFFER_SIZE,"%4d RPM",rpm);
+	TFT_Text(tempBuffer,170,85,8,Yellow,Blue);
+	last_rpm = rpm;
+}
+
+void dc_update(int dc){
+	static int last_dc = 0;
+	char tempBuffer[TEMP_BUFFER_SIZE];
+	snprintf(tempBuffer,TEMP_BUFFER_SIZE,"%3d%%",last_dc);
+	TFT_Text(tempBuffer,170,60,8,Blue,Blue);
+	snprintf(tempBuffer,TEMP_BUFFER_SIZE,"%3d%%",dc);
+	TFT_Text(tempBuffer,170,60,8,Yellow,Blue);
+	last_dc = dc;
+}
+
 void tarea1(void const * arguments){
 	TFT_Fill(Blue);
 	TFT_Text("UPIITA: Micros Avanazados",10,10,8,Yellow,Blue);
 	TFT_Text("Grafica encoder",10,20,8,Yellow,Blue);
+	TFT_Text("DC:",170,50,8,Yellow,Blue);
+	TFT_Text("Encoder:",170,75,8,Yellow,Blue);
 	ScopeInit();
 	while(1){
 		ScopeUpdate(motor_rpm/100);
+		dc_update(duty_cycle);
+		encoder_update(motor_rpm);
 		osDelay(20);
 	}
 }
