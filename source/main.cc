@@ -20,8 +20,13 @@ void tarea2(void const * arguments); //tarea 1
 osThreadId  tarea2ID;	//identificador del hilo tarea 1
 osThreadDef (tarea2,osPriorityNormal,1,0);// macro para definir tareas (aputandor de la funcion, prioridad,?,?)
 
+void tarea3(void const * arguments); //tarea 1
+osThreadId  tarea3ID;	//identificador del hilo tarea 1
+osThreadDef (tarea3,osPriorityNormal,1,0);// macro para definir tareas (aputandor de la funcion, prioridad,?,?)
+
 void tarea1Init(void);//funcion que iniciliza la tarea1
 void tarea2Init(void);//funcion que iniciliza la tarea1
+void tarea3Init(void);//funcion que iniciliza la tarea1
 
 void osInitiAll(void);
 
@@ -70,6 +75,7 @@ int main(){
 void osInitiAll(void){
 	tarea1Init();
 	tarea2Init();
+	tarea3Init();
 }
 
 void tarea1Init(void){
@@ -79,6 +85,10 @@ void tarea1Init(void){
 
 void tarea2Init(void){
 	tarea2ID= osThreadCreate(osThread(tarea2),NULL);
+}
+
+void tarea3Init(void){
+	tarea3ID= osThreadCreate(osThread(tarea3),NULL);
 }
 
 void TFT_Plot(unsigned short x, unsigned short xlen, unsigned short y, unsigned short ylen, const int* pData, int length){
@@ -93,11 +103,11 @@ void TFT_Plot(unsigned short x, unsigned short xlen, unsigned short y, unsigned 
 int get_sine(void){
 	static int i = 0;
 	return(sin(i++*0.05*2*3.1416)*0.5+0.5)*48;
-	
+
 }
 #define SCOPE_BUFFER_SIZE 128
 #define SCOPE_POS_X 10
-#define SCOPE_POS_Y 80
+#define SCOPE_POS_Y 90
 int scope_buffer[SCOPE_BUFFER_SIZE];
 int scope_buffer_index = 0;
 void ScopeInit(){
@@ -125,9 +135,9 @@ void ScopeUpdate(int Datos){
 	if(scope_buffer_index < (SCOPE_BUFFER_SIZE -1)){
 		Scope_WriteLine(scope_buffer_index, Black);
 	}
-	
+
 	scope_buffer[scope_buffer_index] = Datos;
-	
+
 	if(scope_buffer_index  > 1){
 		Scope_WriteLine(scope_buffer_index-2, Yellow);
 	}
@@ -137,19 +147,20 @@ void ScopeUpdate(int Datos){
 	if(scope_buffer_index < (SCOPE_BUFFER_SIZE -1)){
 		Scope_WriteLine(scope_buffer_index, Yellow);
 	}
-	scope_buffer_index++;	
+	scope_buffer_index++;
 	scope_buffer_index %= SCOPE_BUFFER_SIZE;
 }
 
 volatile int motor_rpm;
 
 void tarea1(void const * arguments){
-	TFT_Fill(Blue);	
-	TFT_Text("Hello, World!",10,10,8,Yellow,Blue);
+	TFT_Fill(Blue);
+	TFT_Text("UPIITA: Micros Avanazados",10,10,8,Yellow,Blue);
+	TFT_Text("Grafica encoder",10,20,8,Yellow,Blue);
 	ScopeInit();
 	while(1){
 		ScopeUpdate(motor_rpm/100);
-		osDelay(5);
+		osDelay(20);
 	}
 }
 
@@ -163,5 +174,12 @@ void tarea2(void const * arguments){
 				serial->printf("R%d\n",motor_rpm);
 			}
 		}
+		osThreadYield();
+	}
+}
+
+void tarea3(void const * arguments){
+	while(1){
+		osDelay(1000);
 	}
 }
